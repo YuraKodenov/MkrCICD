@@ -3,6 +3,9 @@
 {% block content %}
   <div class="container">
     <h1>Recipes</h1>
+    <form method="get">
+      <button type="submit" class="btn btn-primary mb-3">Show Random Recipes</button>
+    </form>
     {% for recipe in recipes %}
       <div class="card my-4">
         <div class="card-body">
