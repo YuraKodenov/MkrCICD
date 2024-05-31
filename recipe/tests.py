@@ -1,18 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from .models import Category, Recipe
 
-class CategoryModelTest(TestCase):
+class MainViewTest(TestCase):
 
     def setUp(self):
-        self.category = Category.objects.create(name='Dessert')
-
-    def test_category_creation(self):
-        self.assertTrue(isinstance(self.category, Category))
-        self.assertEqual(self.category.__str__(), 'Dessert')
-
-class RecipeModelTest(TestCase):
-
-    def setUp(self):
+        self.client = Client()
         self.category = Category.objects.create(name='Dessert')
         self.recipe = Recipe.objects.create(
             title='Chocolate Cake',
@@ -22,12 +15,31 @@ class RecipeModelTest(TestCase):
             category=self.category
         )
 
-    def test_recipe_creation(self):
-        self.assertTrue(isinstance(self.recipe, Recipe))
-        self.assertEqual(self.recipe.__str__(), 'Chocolate Cake')
+    def test_main_view_status_code(self):
+        response = self.client.get(reverse('main'))
+        self.assertEqual(response.status_code, 200)
 
-    def test_recipe_category(self):
-        self.assertEqual(self.recipe.category.name, 'Dessert')
-from django.test import TestCase
+    def test_main_view_uses_correct_template(self):
+        response = self.client.get(reverse('main'))
+        self.assertTemplateUsed(response, 'recipe/main.html')
+
+    def test_main_view_displays_recipes(self):
+        response = self.client.get(reverse('main'))
+        self.assertContains(response, self.recipe.title)
+        self.assertContains(response, self.recipe.description)
+
+class CategoryDetailViewTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_category_detail_view_status_code(self):
+        response = self.client.get(reverse('category_detail'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_category_detail_view_uses_correct_template(self):
+        response = self.client.get(reverse('category_detail'))
+        self.assertTemplateUsed(response, 'recipe/category_detail.html')
+
 
 # Create your tests here.
